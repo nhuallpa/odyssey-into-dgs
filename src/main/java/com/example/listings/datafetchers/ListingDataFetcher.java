@@ -2,10 +2,14 @@ package com.example.listings.datafetchers;
 
 import com.example.listings.datasources.ListingService;
 import com.example.listings.generated.types.Amenity;
+import com.example.listings.generated.types.CreateListingInput;
+import com.example.listings.generated.types.CreateListingResponse;
+import com.example.listings.models.CreateListingModel;
 import com.example.listings.models.ListingModel;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsData;
 import com.netflix.graphql.dgs.DgsQuery;
+import com.netflix.graphql.dgs.DgsMutation;
 import com.netflix.graphql.dgs.InputArgument;
 import com.netflix.graphql.dgs.DgsDataFetchingEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +58,24 @@ public class ListingDataFetcher {
       return listing.getAmenities();
     }
     return listingService.amenitiesRequest(id);
+  }
+
+  @DgsMutation
+  public CreateListingResponse createListing(@InputArgument CreateListingInput input) {
+    CreateListingResponse response = new CreateListingResponse();
+    try {
+      ListingModel createdListing = listingService.createListingRequest(input);
+      response.setListing(createdListing);
+      response.setCode(200);
+      response.setMessage("success");
+      response.setSuccess(true);
+    } catch (Exception e) {
+      response.setListing(null);
+      response.setCode(500);
+      response.setMessage(e.getMessage());
+      response.setSuccess(false);
+    }
+    return response;
   }
 
 }
